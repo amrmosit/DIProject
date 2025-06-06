@@ -26,13 +26,17 @@ builder.Services.AddSingleton<IMyService, MyService>();
 
 var app = builder.Build();
 
-// Adding Middleware
+// Adding Middlewares
+// 1- Middleware: This middleware will log the creation of the service when the request is processed.
+// It retrieves the service from the request's service provider and calls the LogCreation method.
 app.Use(async (context, next) =>
 {
     var myService = context.RequestServices.GetRequiredService<IMyService>();
     myService.LogCreation("First Middleware is processing the request.");
     await next();
 });
+// 2- Middleware: This middleware will also log the creation of the service when the request is processed.
+// It retrieves the service from the request's service provider and calls the LogCreation method.
 app.Use(async(context, next) =>
 {
     var myService = context.RequestServices.GetRequiredService<IMyService>();
@@ -40,11 +44,15 @@ app.Use(async(context, next) =>
     await next();
 });
 
+//Adding Endpoints
+// This endpoint will log the creation of the service and return a message to the client
 app.MapGet("/", (IMyService myService) =>
 {
     myService.LogCreation("Hello, World!");
     return Results.Ok("Check the console for service creation log.");
 });
+// This endpoint will return a simple message to the client
+// It does not use the service, but it can be used to test the application.
 app.MapGet("/home", () => "This is the home page!");
 
 app.Run();
